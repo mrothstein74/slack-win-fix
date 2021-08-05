@@ -1,0 +1,35 @@
+# A new Node based CircleCI configuration file
+version: 2.1
+orbs:
+  windows: circleci/windows@2.4.0
+
+executors:
+  linux:
+    docker:
+      - image: cimg/node:lts
+
+jobs:
+  build:
+    parameters:
+      box:
+        type: executor
+        default: windows/default
+    executor: << parameters.box >>
+    steps:
+      - checkout
+      - run:
+          shell: bash
+          command: |
+            SOMEVARIABLE=$(cat myFile.json)
+            echo "$SOMEVARIABLE"
+            CUSTOM_BODY_MODIFIED=$(echo "$SOMEVARIABLE" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/`/\\`/g')
+            echo "$CUSTOM_BODY_MODIFIED"
+
+
+workflows:
+  my-workflow:
+    jobs:
+      - build:
+          matrix:
+            parameters:
+              box: ["windows/default", "linux"]
